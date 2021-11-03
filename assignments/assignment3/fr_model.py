@@ -7,7 +7,8 @@ from fr_settings import CANVAS_WIDTH, CANVAS_HEIGHT, GRID_SIZE, LOG_HEIGHT, Dire
 LEVEL_TIME = 120
 speed = 1.0
 
-class RiverObject():
+
+class RiverObject:
     def __init__(self, x, y, width, dir, speed):
         self.x = x
         self.y = y
@@ -38,14 +39,16 @@ class RiverObject():
             return False
         return True
 
-#logs and turtles are both river objects - they move and act mostly the same
+
+# logs and turtles are both river objects - they move and act mostly the same
 class Log(RiverObject):
     def __init__(self, x, y, width, dir, speed):
         RiverObject.__init__(self, x, y, width, dir, speed)
 
     def is_log(self):
         return True
-        
+
+
 class Turtle(RiverObject):
     def __init__(self, x, y, width, dir, speed):
         RiverObject.__init__(self, x, y, width, dir, speed)
@@ -55,11 +58,10 @@ class Turtle(RiverObject):
         return False
 
     def is_sunk(self):
-        return self.sunk;
-    
-        
-        
-class Car():
+        return self.sunk
+
+
+class Car:
     def __init__(self, x, y, carnum, dir, speed):
         self.x = x
         self.y = y
@@ -90,19 +92,19 @@ class Car():
             return False
         # x positions are center of objects
         # frog doesn't fill a square, so allow some slack
-        margin = (GRID_SIZE*8)//10
+        margin = (GRID_SIZE * 8) // 10
         if frog_x > self.x - margin and frog_x < self.x + margin:
             return True
 
 
-class Frog():
+class Frog:
     def __init__(self, x, y):
         self.start_position = (x, y)
         self.x = x
         self.y = y
         self.direction = Direction.UP
-        self.log = None #we're not on a log yet
-        self.moving = False #we're not moving
+        self.log = None  # we're not on a log yet
+        self.moving = False  # we're not moving
 
     def get_position(self):
         return (self.x, self.y)
@@ -111,26 +113,32 @@ class Frog():
         return self.direction
 
     def reset_position(self):
-        (self.x,self.y) = self.start_position
+        (self.x, self.y) = self.start_position
 
-    ''' which log are we on, or None if we're not on a log '''
+    """ which log are we on, or None if we're not on a log """
+
     def on_log(self):
         return self.log
 
-    ''' we're on a log.  Move along with it. '''
+    def off_log(self):
+        self.log = None
+
+    """ we're on a log.  Move along with it. """
+
     def move_with(self, log):
         if self.log != log:
-            #we've just joined this log
+            # we've just joined this log
             self.log = log
             (self.log_x, log_y) = log.get_position()
-            #no need to move this time
+            # no need to move this time
         else:
             (log_x, log_y) = log.get_position()
             x_delta = log_x - self.log_x
             self.x = self.x + x_delta
             self.log_x = log_x
-            
-    ''' move due to user input '''
+
+    """ move due to user input """
+
     def move(self, dir):
         if self.moving:
             return
@@ -138,29 +146,30 @@ class Frog():
         self.moving = True
         self.start_move_time = time.time()
         if dir == Direction.LEFT:
-            self.x = self.x - GRID_SIZE//2
+            self.x = self.x - GRID_SIZE // 2
         elif dir == Direction.RIGHT:
-            self.x = self.x + GRID_SIZE//2
+            self.x = self.x + GRID_SIZE // 2
         elif dir == Direction.UP:
-            self.y = self.y - GRID_SIZE//2
+            self.y = self.y - GRID_SIZE // 2
         elif dir == Direction.DOWN:
-            self.y = self.y + GRID_SIZE//2
+            self.y = self.y + GRID_SIZE // 2
 
     def finish_move(self):
         if (not self.moving) or (time.time() - self.start_move_time < 0.1):
             return
         dir = self.direction
         if dir == Direction.LEFT:
-            self.x = self.x - GRID_SIZE//2
+            self.x = self.x - GRID_SIZE // 2
         elif dir == Direction.RIGHT:
-            self.x = self.x + GRID_SIZE//2
+            self.x = self.x + GRID_SIZE // 2
         elif dir == Direction.UP:
-            self.y = self.y - GRID_SIZE//2
+            self.y = self.y - GRID_SIZE // 2
         elif dir == Direction.DOWN:
-            self.y = self.y + GRID_SIZE//2
+            self.y = self.y + GRID_SIZE // 2
         self.moving = False
 
-class Model():
+
+class Model:
     def __init__(self, controller):
         self.controller = controller
         self.lives = 7
@@ -168,8 +177,8 @@ class Model():
         self.init_score()
         self.rand = Random()
 
-        #create game objects
-        self.frog = Frog(CANVAS_WIDTH//2, GRID_SIZE*15)
+        # create game objects
+        self.frog = Frog(CANVAS_WIDTH // 2, GRID_SIZE * 15)
         controller.register_frog(self.frog)
         self.logs = []
         self.cars = []
@@ -198,50 +207,50 @@ class Model():
         self.controller.update_lives(self.lives)
 
     def create_logs(self):
-        #remove any old logs or turtles
+        # remove any old logs or turtles
         self.logs.clear()
 
-        #create the new ones
-        y = GRID_SIZE*4
+        # create the new ones
+        y = GRID_SIZE * 4
         speeds = [1, 1, 2.5, 1, 2]
-        turtles = [False, True, False, False, True] # true if this is a turtle
+        turtles = [False, True, False, False, True]  # true if this is a turtle
         for row in range(0, 5):
             width = 0
             x = 0
             for log_num in range(0, 5):
-                space = self.rand.randint(50,200) + self.level*50
+                space = self.rand.randint(50, 200) + self.level * 50
                 x = x + width + space
                 if x < CANVAS_WIDTH * 1.5:
-                    #turtles go left, logs go right
-                    if turtles[row]: 
+                    # turtles go left, logs go right
+                    if turtles[row]:
                         dir = Direction.LEFT
                     else:
                         dir = Direction.RIGHT
                     if turtles[row]:
                         # needs to be either two or three turtles long
-                        width = self.rand.randint(2,3) * GRID_SIZE 
+                        width = self.rand.randint(2, 3) * GRID_SIZE
                         object = Turtle(x, y, width, dir, speeds[row])
                     else:
-                        width = self.rand.randint(80,200 - self.level * 20)
+                        width = self.rand.randint(80, 200 - self.level * 20)
                         object = Log(x, y, width, dir, speeds[row])
-                    self.logs.append(object);
+                    self.logs.append(object)
                     self.controller.register_river_object(object)
             y = y + GRID_SIZE
 
     def create_cars(self):
-        #remove any old cars
+        # remove any old cars
         self.cars.clear()
 
-        y = GRID_SIZE*10
+        y = GRID_SIZE * 10
         speeds = [2, 4, 2.5, 1, 3]
         carnums = [1, 2, 1, 3, 0]
         for row in range(0, 5):
             x = 0
             for car_num in range(0, 8):
-                space = self.rand.randint(50,200)
-                x = x + space*speeds[row] + GRID_SIZE
+                space = self.rand.randint(50, 200)
+                x = x + space * speeds[row] + GRID_SIZE
                 if x < CANVAS_WIDTH * 1.5:
-                    #alternate left and right directions
+                    # alternate left and right directions
                     if row % 2 == 0:
                         dir = Direction.LEFT
                     else:
@@ -257,28 +266,28 @@ class Model():
         self.frogs_home = 0
         self.homes_x = []
         self.homes_occupied = []
-        spacing = (CANVAS_WIDTH - GRID_SIZE*5)//5
+        spacing = (CANVAS_WIDTH - GRID_SIZE * 5) // 5
         # the left hand home has centre position of spacing/2 (green to
         # the left of the home) + GRID_SIZE/2 (to get the centre of the
         # grid square)
-        x = (spacing + GRID_SIZE)//2
-        for i in range(0,6):
-            x = x + GRID_SIZE + spacing
+        x = (spacing + GRID_SIZE) // 2
+        for i in range(0, 6):
             self.homes_x.append(x)
             self.homes_occupied.append(False)
+            x = x + GRID_SIZE + spacing
 
     def frog_is_home(self, home_num):
-        assert(home_num >= 0 and home_num <= 4)
+        assert home_num >= 0 and home_num <= 4
         self.frogs_home = self.frogs_home + 1
         self.homes_occupied[home_num] = True
 
-        #update score
+        # update score
         self.score = self.score + 200
         remaining_time = int(self.end_time - time.time())
         if remaining_time > 0:
             self.score = self.score + remaining_time
 
-        #update view
+        # update view
         (x, y) = self.frog.get_position()
         self.controller.frog_is_home(x, y)
 
@@ -291,7 +300,7 @@ class Model():
         self.pause_start(1, "self.next_level()")
 
     def reset_homes(self):
-        for i in range(0,6):
+        for i in range(0, 6):
             self.homes_occupied[i] = False
 
     def died(self):
@@ -314,9 +323,10 @@ class Model():
             self.dont_update_speed = True
             # evaluate the registered function
             exec(self.unpause_function)
-            
+
     def new_life(self):
         self.controller.update_lives(self.lives)
+        self.frog.reset_position()
 
     def game_over(self):
         self.game_running = False
@@ -324,6 +334,7 @@ class Model():
         self.controller.game_over()
 
     def restart(self):
+        self.game_running = True
         self.level = 1
         self.score = 0
         self.reset_level()
@@ -368,7 +379,7 @@ class Model():
             # check if it's now on any other log
             for log in self.logs:
                 if log.contains(self.frog):
-                    on_long = log
+                    on_log = log
                     break
         if on_log is None:
             # frog is not on a log - it must be in the water
@@ -390,8 +401,8 @@ class Model():
         # frog is attempting to enter home
         (x, y) = self.frog.get_position()
         for i in range(0, 5):
-            if abs(self.homes_x[i] - x) < GRID_SIZE/2 and not self.homes_occupied[i]:
-                #we're in a free home
+            if abs(self.homes_x[i] - x) < GRID_SIZE / 2 and not self.homes_occupied[i]:
+                # we're in a free home
                 self.frog_is_home(i)
                 return
         self.died()
@@ -400,9 +411,9 @@ class Model():
         if self.frog.moving:
             self.frog.finish_move()
             return
-        
+
         (x, y) = self.frog.get_position()
-        if x < 0 or x > CANVAS_WIDTH:
+        if x < 0 or x > CANVAS_WIDTH or y > CANVAS_HEIGHT:
             self.died()
             return
 
@@ -415,12 +426,16 @@ class Model():
         elif y == GRID_SIZE * 3:
             # frog is attempting to enter home
             self.check_frog_entering_home()
+        elif y != self.frog.start_position[1]:
+            # frog is on the riverbank
+            self.frog.off_log()
 
-    ''' adjust game speed so it's more or less the same on different machines '''
+    """ adjust game speed so it's more or less the same on different machines """
+
     def checkspeed(self):
         global speed
         self.framecount = self.framecount + 1
-        # only check every ten frames                                                        
+        # only check every ten frames
         if self.framecount == 10:
             now = time.time()
             elapsed = now - self.lastframe
@@ -429,23 +444,24 @@ class Model():
             # if we've just started, or just unpaused, don't update
             # the speed as it will end up wrong
             if self.dont_update_speed == True:
-                self.dont_update_speed = False  
+                self.dont_update_speed = False
                 return
-            # speed will be 1.0 if we're achieving 60 fps                                    
+            # speed will be 1.0 if we're achieving 60 fps
             if speed == 0:
-                #initial speed value                                                         
-		# At 60fps, 10 frames take 1/6 of a second.                                  
+                # initial speed value
+                # At 60fps, 10 frames take 1/6 of a second.
                 speed = 6 * elapsed
             else:
-                # use an EWMA to damp speed changes and avoid excessive jitter               
+                # use an EWMA to damp speed changes and avoid excessive jitter
                 speed = speed * 0.9 + 0.1 * 6 * elapsed
-        
+
     def update(self):
         if self.game_running and not self.paused:
+            if time.time() > self.end_time:
+                self.game_over()
             self.move_objects()
             self.controller.update_score(self.score)
             self.check_frog()
             self.checkspeed()
         elif self.paused:
             self.check_pause()
-
