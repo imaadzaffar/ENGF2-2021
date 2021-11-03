@@ -1,0 +1,60 @@
+# Written by Imaad Zaffar 15.10.21
+# This is my bug report for the bomber game in assignment 2
+
+--
+
+Bug 1:
+* Description - Bomb keeps on falling if in a gap
+* Cause - The bomb will only explode if it hits a building
+* Steps to reproduce - Drop a bomb in the gap between neighboring buildings
+* Fix - Explode the bomb if its Y position is >= CANVAS_HEIGHT
+
+Bug 2:
+* Description - Buildings not getting destroyed properly and appearing below canvas
+* Cause - Building keeps on shrinking if it's hit by the bomb, even if it has a negative height
+* Steps to reproduce - Keep on bombing short buildings and then extend the bottom of the canvas
+* Fix - If building height is <= 50, make it 0 when shrinking, and also remove it from Display.buildings
+
+Bug 3:
+* Description - Too many buildings created
+* Cause - The value for CANVAS_WIDTH and the value inside Display.create_buildings() are different
+* Steps to reproduce - Start the game and extend the right side of the canvas
+* Fix - Change hardcoded value from 1200 to CANVAS_WIDTH, increase CANVAS_WIDTH to 1200
+
+Bug 4:
+* Description - Can't bomb the building closest to the right side
+* Cause - Plane isn't offset enough to the right when it emerges from that side
+* Steps to reproduce - Start the game and wait for the plane to emerge from the right side
+* Fix - Offset plane's x position by CANVAS_WIDTH + Plane.width when it comes from the right side
+
+Bug 5:
+* Description - Bomb doesn't explode even if it hits the left side of a building
+* Cause - The position of the bomb refers to its top left corner, which is not inside the building
+* Steps to reproduce - Drop a bomb close the the left side of a building
+* Fix - Extend range in check by 10 pixels to allow for the bomb width
+
+Bug 6:
+* Description - Bomb is still falling when the game restarts
+* Cause - The bomb from the previous game wasn't cleared properly
+* Steps to reproduce - Drop a bomb right before restarting the game
+* Fix - On restart, explode the bomb to reset its state
+
+Bug 6:
+* Description - Restart not working in the middle of a game
+* Cause - Program tries to delete text objects that don't exist
+* Steps to reproduce - Press the 'r' button in the middle of a game
+* Fix - Add a check to only delete the text objects if they exist
+
+--
+
+Enhancement 1:
+* Issue - Text and background color don't show properly for dark mode on MacOS
+* Fix - Make bg color white and text fill color black
+
+Enhancement 2:
+* Issue - Can drop a bomb even if the front of the plane is off the canvas
+* Fix - Don't allow dropping a bomb if the plane's y position < 0
+
+Enhancement 3:
+* Issue - Half of the plane goes under the bottom of the screen at the end
+* Fix - Move the plane higher up
